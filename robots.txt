@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://waterlilyburdock.github.io/Starlink-svo/sitemap.xml
