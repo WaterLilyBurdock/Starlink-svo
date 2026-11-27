@@ -106,10 +106,42 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.callback_query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
 
+LEGAL_DOCS = {
+    "legal_privacy": {
+        "file": "Политика-Конф.docx",
+        "filename": "Политика конфиденциальности.docx",
+        "caption": "<b>Политика конфиденциальности</b>",
+    },
+    "legal_terms": {
+        "file": "Пользовательское-Согласшение.docx",
+        "filename": "Пользовательское соглашение.docx",
+        "caption": "<b>Пользовательское соглашение (Публичная оферта)</b>",
+    },
+}
+
+
 async def show_legal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    
+
+    keyboard = [
+        [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
+        [InlineKeyboardButton("В начало", callback_data="back_start")]
+    ]
+    doc_meta = LEGAL_DOCS.get(query.data)
+    if doc_meta:
+        doc_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), doc_meta["file"])
+        if os.path.isfile(doc_path):
+            with open(doc_path, "rb") as f:
+                await query.message.reply_document(
+                    document=f,
+                    filename=doc_meta["filename"],
+                    caption=doc_meta["caption"],
+                    reply_markup=InlineKeyboardMarkup(keyboard),
+                    parse_mode="HTML",
+                )
+            return
+
     if query.data == "legal_privacy":
         text = (
             "<b>Политика конфиденциальности</b>\n\n"
@@ -119,27 +151,7 @@ async def show_legal(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Мы храним их не дольше, чем это необходимо для целей обработки.\n\n"
             "Вы можете запросить удаление своих данных, написав нам на svoilink@mail.ru"
         )
-        keyboard = [
-            [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
-            [InlineKeyboardButton("В начало", callback_data="back_start")]
-        ]
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
-        return
-
-    doc_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Пользовательское-Согласшение.docx")
-    keyboard = [
-        [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
-        [InlineKeyboardButton("В начало", callback_data="back_start")]
-    ]
-    if os.path.isfile(doc_path):
-        with open(doc_path, "rb") as f:
-            await query.message.reply_document(
-                document=f,
-                filename="Пользовательское соглашение.docx",
-                caption="<b>Пользовательское соглашение (Публичная оферта)</b>",
-                reply_markup=InlineKeyboardMarkup(keyboard),
-                parse_mode="HTML",
-            )
         return
 
     text = (
