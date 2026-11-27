@@ -119,8 +119,30 @@ async def show_legal(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Мы храним их не дольше, чем это необходимо для целей обработки.\n\n"
             "Вы можете запросить удаление своих данных, написав нам на svoilink@mail.ru"
         )
-    else:
-        text = (
+        keyboard = [
+            [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
+            [InlineKeyboardButton("В начало", callback_data="back_start")]
+        ]
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
+        return
+
+    doc_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Пользовательское-Согласшение.docx")
+    keyboard = [
+        [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
+        [InlineKeyboardButton("В начало", callback_data="back_start")]
+    ]
+    if os.path.isfile(doc_path):
+        with open(doc_path, "rb") as f:
+            await query.message.reply_document(
+                document=f,
+                filename="Пользовательское соглашение.docx",
+                caption="<b>Пользовательское соглашение (Публичная оферта)</b>",
+                reply_markup=InlineKeyboardMarkup(keyboard),
+                parse_mode="HTML",
+            )
+        return
+
+    text = (
             "<b>Пользовательское соглашение (Публичная оферта)</b>\n\n"
             "<b>1. Термины и определения</b>\n"
             "1.1. <b>Оферта</b> – настоящее Пользовательское соглашение.\n"
@@ -156,14 +178,8 @@ async def show_legal(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "7.2. В случае невозможности разрешить спор путем переговоров, он подлежит рассмотрению в суде в соответствии с действующим законодательством.\n\n"
             "<b>8. Срок действия Оферты</b>\n"
             "8.1. Настоящая Оферта вступает в силу с момента ее публикации и действует до момента ее отзыва Исполнителем.\n"
-            "8.2. Исполнитель оставляет за собой право вносить изменения в Оферту, которые вступают в силу с момента публикации новой версии."
-        )
-        
-    keyboard = [
-        [InlineKeyboardButton("Открыть на сайте", url=LEGAL_URL)],
-        [InlineKeyboardButton("В начало", callback_data="back_start")]
-    ]
-    
+        "8.2. Исполнитель оставляет за собой право вносить изменения в Оферту, которые вступают в силу с момента публикации новой версии."
+    )
     await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
 
 
